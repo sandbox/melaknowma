@@ -76,7 +76,7 @@ module Melaknowma
     include RedisSupport
     redis_key :configuration, "crowd:configuration"
 
-    JOBS = [ "symmetry", "border", "color", "diameter", "elevation" ]
+    JOBS = [ "symmetry", "border", "color" ] # , "diameter", "elevation" ]
 
     def self.configure(config)
       config.each do |key, value|
@@ -119,6 +119,11 @@ module Melaknowma
 
     get "/obscure_url_to_edit_job_settings" do
       haml :admin
+    end
+
+    get "/ensure_webhook" do
+      Crowd.ensure_webhook
+      redirect "/obscure_url_to_edit_job_settings"
     end
 
     post "/configurate" do
