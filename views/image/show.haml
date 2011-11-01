@@ -1,7 +1,7 @@
 This is a picture of your image.
 
 %br= @image.id
-%img{:src => "https://s3.amazonaws.com/#{Melaknowma::Image::S3_BUCKET}/#{@image.id}"}
+%img{:src => @image.url}
 
 %br
 

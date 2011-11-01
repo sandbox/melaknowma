@@ -51,7 +51,7 @@ module Melaknowma
     end
 
     def url
-      @id
+      "https://s3.amazonaws.com/#{S3_BUCKET}/#{@id}"
     end
 
     def self.get(identifier)
@@ -73,7 +73,29 @@ module Melaknowma
   end
 
   class Crowd
-    def self.push(image_url)
+    include RedisSupport
+    redis_key :configuration, "crowd:configuration"
+
+    JOBS = [ "symmetry", "border", "color", "diameter", "elevation" ]
+
+    def self.configure(config)
+      config.each do |key, value|
+        redis.hset(Keys.configuration, key, value)
+      end
+    end
+
+    def self.ensure_webhook
+    end
+
+    def self.configuration
+      redis.hgetall(Keys.configuration)
+    end
+
+    def self.push(image)
+      config = configuration
+      JOBS.each do |job|
+        CrowdFlower.upload_unit(config[job], { "image_id" => image.id, "url" => image.url })
+      end
     end
   end
 
@@ -91,6 +113,15 @@ module Melaknowma
       haml :index
     end
 
+    get "/obscure_url_to_edit_job_settings" do
+      haml :admin
+    end
+
+    post "/configurate" do
+      Crowd.configure(params)
+      redirect "/obscure_url_to_edit_job_settings"
+    end
+
     get "/image/:id" do
       @image = Image.get(params[:id])
       haml :'image/show'
@@ -98,7 +129,7 @@ module Melaknowma
 
     post "/upload" do
       image = Image.store(params["image_mole"][:tempfile])
-      Crowd.push(image.url)
+      Crowd.push(image)
       redirect "/image/#{image.id}"
     end
 
