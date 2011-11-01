@@ -1,4 +1,6 @@
 $:.unshift(".")
+require 'bundler'
+Bundler.setup
 require 'melaknowma'
 
 Melaknowma::Application.configure do
