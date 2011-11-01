@@ -85,6 +85,10 @@ module Melaknowma
     end
 
     def self.ensure_webhook
+      config = configuration
+      JOBS.each do |job|
+        CrowdFlower.update_job(config[job], { "webhook_uri" => ENV["MELAKNOWMA_WEBHOOK"] }).send_now
+      end
     end
 
     def self.configuration
@@ -94,7 +98,7 @@ module Melaknowma
     def self.push(image)
       config = configuration
       JOBS.each do |job|
-        CrowdFlower.upload_unit(config[job], { "image_id" => image.id, "url" => image.url })
+        CrowdFlower.upload_unit(config[job], { "image_id" => image.id, "url" => image.url }).send_now
       end
     end
   end
