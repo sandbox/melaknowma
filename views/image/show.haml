@@ -1,0 +1,28 @@
+This is a picture of your image.
+
+%br= @image.id
+%img{:src => "https://s3.amazonaws.com/#{Melaknowma::Image::S3_BUCKET}/#{@image.id}"}
+
+%br
+
+The crowd has reviewed the following melanoma criteria.
+
+%table
+  %tr
+    %th Symmetry
+    %th Border
+    %th Color
+    %th Diameter
+    %th Elevation
+  %tr
+    %td= @image.symmetry
+    %td= @image.border
+    %td= @image.color
+    %td= @image.diameter
+    %td= @image.elevation
+
+- if "pending" == @image.diagnosis
+  We have not gathered enough information to offer any suggestions.
+- else
+  Given the above criteria we think:
+  %br= @image.diagnosis

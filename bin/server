@@ -1,0 +1,5 @@
+#!/usr/bin/ruby
+require 'yaml'
+config = YAML.load(File.read("config.yml"))
+cmd = "CROWDFLOWER_API_KEY=#{config["api"]} S3_ACCESS_KEY_ID=#{config["s3_key"]} S3_SECRET_ACCESS_KEY=#{config["s3_secret"]} bundle exec rackup config.ru"
+puts cmd
