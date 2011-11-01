@@ -1,0 +1,8 @@
+.bundle
+gems/ruby/*/gems
+gems/ruby/*/doc
+gems/ruby/*/specifications
+gems/ruby/*/bin
+gems/ruby/*/bundler
+
+gems/ruby/*/cache
