@@ -34,7 +34,7 @@ module Melaknowma
 
     attr_accessor :id, :image_file
 
-    ATTRIBUTES = [ :symmetry, :border, :color, :diameter, :elevation, :diagnosis, :disease_real ]
+    ATTRIBUTES = [ :symmetry, :border, :color, :diameter, :elevation, :disease_real ]
     attr_accessor *ATTRIBUTES
 
     def self.list
@@ -45,7 +45,6 @@ module Melaknowma
       image = self.new
       image.image_file = StringIO.new(data)
       image.id = Digest::SHA1.hexdigest(data)
-      image.diagnosis = "pending"
       ATTRIBUTES.each do |attr|
         if val = (options[attr] || options[attr.to_s])
           image.send("#{attr}=", val)
@@ -58,7 +57,6 @@ module Melaknowma
       image = self.new
       image.image_file = image_file
       image.id = Digest::SHA1.hexdigest(image_file.path)
-      image.diagnosis = "pending"
       ATTRIBUTES.each do |attr|
         if val = (options[attr] || options[attr.to_s])
           image.send("#{attr}=", val)
@@ -100,6 +98,14 @@ module Melaknowma
         done = (redis.hgetall(Keys.identifier(self.id)).keys & Crowd::JOBS).size == Crowd::JOBS.size
       end
       return done
+    end
+
+    def diagnosis
+      if self.color.to_i > 0 || self.border.to_i > 0 || self.symmetry.to_i > 0
+        "get this checked by a doctor"
+      else
+        "likely benign"
+      end
     end
 
     def self.get(identifier)
@@ -182,19 +188,7 @@ module Melaknowma
 
       image = Image.get(image_id)
       image.send("#{crowdflower_field}=", field_score)
-      if image.done?
-        diagnose(image)
-      end
       image.save
-    end
-
-    def self.diagnose(image)
-      # we should probably do something
-      if image.color.to_i > 0 && image.border.to_i > 0 && image.symmetry.to_i > 0
-        image.diagnosis = "get this checked by a doctor"
-      else
-        image.diagnosis = "likely benign"
-      end
     end
   end
 
