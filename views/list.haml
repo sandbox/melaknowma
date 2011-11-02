@@ -6,7 +6,7 @@
     %th Crowd Diagnosis?
     %th Actual Disease?
   - Melaknowma::Image.list.each do |image_id|
-    - image = Image.get(image_id)
+    - image = Melaknowma::Image.get(image_id)
     %tr
       %td
         %a{:href => "/image/#{image_id}"}= image_id
