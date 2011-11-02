@@ -166,13 +166,11 @@ module Melaknowma
       image = Image.new_from_data(params["data"], params["options"])
       image.save
 
-      # Crowd.push(image)
+      Crowd.push(image)
       status(200)
     end
 
     post "/upload" do
-      p params
-
       image = Image.new_from_file(params["image_mole"][:tempfile], params["image_mole"])
       image.save
 
