@@ -171,7 +171,7 @@ module Melaknowma
       p crowdflower_data["job_id"]
 
       crowdflower_field, junk = Crowd.configuration.find do |key, value|
-        crowdflower_data["job_id"] == value
+        crowdflower_data["job_id"].to_i == value.to_i
       end
 
       p crowdflower_field
