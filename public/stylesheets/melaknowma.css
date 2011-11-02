@@ -1,0 +1,29 @@
+body { background: #ECE59A; }
+
+body > header > h1 { 
+    font-size: 100px;
+    text-align: center;
+}
+
+#instructions > p {
+    font-size: 30px;
+    line-height: 1.1;
+    border-style: solid;
+    border-width: 2px 0;
+    padding: 20px 0;
+    margin: 20px;
+}
+
+#example-image {
+    text-align: center;
+}
+
+#upload {
+    margin: 10px;
+    text-align: center;
+}
+
+#disclaimer {
+    font-size: 30px;
+    text-align: center;
+}

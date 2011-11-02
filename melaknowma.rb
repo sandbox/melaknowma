@@ -204,6 +204,10 @@ module Melaknowma
       haml :index
     end
 
+    get "/list" do
+      haml :list
+    end
+
     get "/obscure_url_to_edit_job_settings" do
       haml :admin
     end

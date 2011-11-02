@@ -1,0 +1,13 @@
+%table{:border => "1"}
+  %tr
+    %th Image
+    %th Progress
+    %th Done?
+  - Melaknowma::Image.list.each do |image_id|
+    %tr
+      %td
+        %a{:href => "/image/#{image_id}"}= image_id
+      %td
+        = Melaknowma::Image.progress(image_id)
+      %td
+        = Melaknowma::Image.progress(image_id) == 1
