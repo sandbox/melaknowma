@@ -33,6 +33,19 @@ module Melaknowma
       redis.smembers(Keys.identifiers)
     end
 
+    def self.new_from_data(data, options = {})
+      image = self.new
+      image.image_file = StringIO.new(data)
+      image.id = Digest::SHA1.hexdigest(data)
+      image.diagnosis = "pending"
+      ATTRIBUTES.each do |attr|
+        if val = (options[attr] || options[attr.to_s])
+          image.send("#{attr}=", val)
+        end
+      end
+      image
+    end
+
     def self.new_from_file(image_file, options = {})
       image = self.new
       image.image_file = image_file
@@ -150,14 +163,16 @@ module Melaknowma
     end
 
     post "/api/upload" do
-      image = Image.new_from_file(params["image_mole"][:tempfile], params["image_mole"])
+      image = Image.new_from_data(params["data"], params["options"])
       image.save
 
-      Crowd.push(image)
+      # Crowd.push(image)
       status(200)
     end
 
     post "/upload" do
+      p params
+
       image = Image.new_from_file(params["image_mole"][:tempfile], params["image_mole"])
       image.save
 
