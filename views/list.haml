@@ -3,7 +3,10 @@
     %th Image
     %th Progress
     %th Done?
+    %th Crowd Diagnosis?
+    %th Actual Disease?
   - Melaknowma::Image.list.each do |image_id|
+    - image = Image.get(image_id)
     %tr
       %td
         %a{:href => "/image/#{image_id}"}= image_id
@@ -11,3 +14,7 @@
         = Melaknowma::Image.progress(image_id)
       %td
         = Melaknowma::Image.progress(image_id) == 1
+      %td
+        = image.diagnosis
+      %td
+        = image.disease_real
