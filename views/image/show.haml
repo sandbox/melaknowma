@@ -21,7 +21,7 @@ The crowd has reviewed the following melanoma criteria.
     %td= @image.diameter
     %td= @image.elevation
 
-- if "pending" == @image.diagnosis
+- unless @image.diagnosis
   We have not gathered enough information to offer any suggestions.
 - else
   Given the above criteria we think:
