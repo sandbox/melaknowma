@@ -8,6 +8,14 @@ require 'json'
 require 'aws/s3'
 require 'digest/sha1'
 
+module RedisSupport
+  module ClassMethods
+    def timeout_i(timeout)
+      Time.now.to_i + timeout.to_i
+    end
+  end
+end
+
 # ASYM 67999
 # BORDER 68000
 # COLOR 68001
@@ -82,6 +90,14 @@ module Melaknowma
       "https://s3.amazonaws.com/#{S3_BUCKET}/#{@id}"
     end
 
+    def done?
+      done = false
+      self.class.redis_lock(self.id) do
+        done = (redis.hgetall(Keys.identifier(self.id)).keys & Crowd::JOBS).size == Crowd::JOBS.size
+      end
+      return done
+    end
+
     def self.get(identifier)
       if redis.sismember(Keys.identifiers, identifier)
         image = self.new
@@ -92,9 +108,6 @@ module Melaknowma
         end
         image
       end
-    end
-
-    def self.store(image_file)
     end
   end
 
@@ -130,8 +143,52 @@ module Melaknowma
   end
 
   class Doctor
+    NO_WEIGHTS = {
+      "color"    => 1,
+      "border"   => 1,
+      "symmetry" => 1
+    }
+    YES_WEIGHTS = {
+      "color"    => 0,
+      "border"   => 0,
+      "symmetry" => 0
+    }
+
     def self.process(crowdflower_data)
-      crowdflower_results = crowdflower_data["results"] # { cf_field => { agg => result } }
+      # { cf_field => { agg => result } }
+      image_id = crowdflower_data["data"]["image_id"]
+
+      crowdflower_results = crowdflower_data["results"]
+
+      crowdflower_field, junk = Crowd.configuration.find do |key, value|
+        crowdflower_data["job_id"] == value
+      end
+
+      field_score = crowdflower_results["judgments"].inject(0) do |score, judgment|
+        if "false" == judgment["tainted"]
+          score += ("no" == judgment["data"][crowdflower_field]) ? NO_WEIGHTS[crowdflower_field] : YES_WEIGHTS[crowdflower_field]
+        else
+          score
+        end
+      end
+
+      judgments_count = crowdflower_results["judgments"].length
+
+      image = Image.get(image_id)
+      image.send("#{crowdflower_field}=", field_score)
+      if image.done?
+        diagnose(image)
+      end
+      image.save
+    end
+
+    def self.diagnose(image)
+      # we should probably do something
+      if image.color.to_i > 0 && image.border.to_i > 0 && image.symmetry.to_i > 0
+        image.diagnosis = "likely benign"
+      else
+        image.diagnosis = "get this checked by a doctor"
+      end
     end
   end
 
@@ -181,7 +238,7 @@ module Melaknowma
     post "/crowdflower" do
       signal = params["signal"]
       return unless 'unit_complete' == signal
-      
+
       if params['payload'].is_a?( String )
         payload = JSON.parse( params["payload"] )
       else
