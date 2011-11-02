@@ -3,8 +3,16 @@
     %input{:type => "file", :name => "image_mole"}
     %input{:type => "submit", :value => "Send"}
 
-- Melaknowma::Image.list.each do |image_id|
-  %ul
-    %li
-      Image
-      %a{:href => "/image/#{image_id}"}= image_id
+%table{:border => "1"}
+  %tr
+    %th Image
+    %th Progress
+    %th Done?
+  - Melaknowma::Image.list.each do |image_id|
+    %tr
+      %td
+        %a{:href => "/image/#{image_id}"}= image_id
+      %td
+        = Melaknowma::Image.progress(image_id)
+      %td
+        = Melaknowma::Image.progress(image_id) == 1

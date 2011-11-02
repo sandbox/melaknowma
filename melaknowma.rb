@@ -90,6 +90,10 @@ module Melaknowma
       "https://s3.amazonaws.com/#{S3_BUCKET}/#{@id}"
     end
 
+    def self.progress(image_id)
+      (redis.hgetall(Keys.identifier(image_id)).keys & Crowd::JOBS).size / Crowd::JOBS.size.to_f
+    end
+
     def done?
       done = false
       self.class.redis_lock(self.id) do
