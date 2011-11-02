@@ -179,7 +179,7 @@ module Melaknowma
       end
 
       field_score = crowdflower_results["judgments"].inject(0) do |score, judgment|
-        if "false" == judgment["tainted"]
+        if ("false" == judgment["tainted"]) || (false == judgment["tainted"])
           score += ("no" == judgment["data"][crowdflower_field]) ? NO_WEIGHTS[crowdflower_field] : YES_WEIGHTS[crowdflower_field]
         else
           score
