@@ -162,7 +162,12 @@ module Melaknowma
       # { cf_field => { agg => result } }
       image_id = crowdflower_data["data"]["image_id"]
 
+      return unless image_id
+
       crowdflower_results = crowdflower_data["results"]
+
+      p crowdflower_data
+      p Crowd.configuration
 
       crowdflower_field, junk = Crowd.configuration.find do |key, value|
         crowdflower_data["job_id"] == value
