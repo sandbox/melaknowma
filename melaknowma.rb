@@ -166,16 +166,9 @@ module Melaknowma
 
       crowdflower_results = crowdflower_data["results"]
 
-      p crowdflower_data
-      p Crowd.configuration
-      p crowdflower_data["job_id"]
-
       crowdflower_field, junk = Crowd.configuration.find do |key, value|
         crowdflower_data["job_id"].to_i == value.to_i
       end
-
-      p crowdflower_field
-      p crowdflower_results
 
       field_score = crowdflower_results["judgments"].inject(0) do |score, judgment|
         if "false" == judgment["tainted"]
