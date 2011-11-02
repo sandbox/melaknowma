@@ -26,26 +26,41 @@ module Melaknowma
 
     attr_accessor :id, :image_file
 
-    ATTRIBUTES = [ :symmetry, :border, :color, :diameter, :elevation, :diagnosis ]
+    ATTRIBUTES = [ :symmetry, :border, :color, :diameter, :elevation, :diagnosis, :disease_real ]
     attr_accessor *ATTRIBUTES
 
-    def self.new_from_file(image_file)
+    def self.list
+      redis.smembers(Keys.identifiers)
+    end
+
+    def self.new_from_file(image_file, options = {})
       image = self.new
       image.image_file = image_file
       image.id = Digest::SHA1.hexdigest(image_file.path)
+      image.diagnosis = "pending"
+      ATTRIBUTES.each do |attr|
+        if val = (options[attr] || options[attr.to_s])
+          image.send("#{attr}=", val)
+        end
+      end
       image
     end
 
     def save
-      AWS::S3::S3Object.store(
-        @id,
-        @image_file.read,
-        S3_BUCKET,
-        :access => :public_read
-        )
+      if @image_file
+        AWS::S3::S3Object.store(
+          @id,
+          @image_file.read,
+          S3_BUCKET,
+          :access => :public_read
+          )
+      end
 
       redis.sadd(Keys.identifiers, @id)
-      redis.hset(Keys.identifier(@id), :diagnosis, "pending")
+      ATTRIBUTES.each do |attr|
+        next unless (val = self.send(attr))
+        redis.hset(Keys.identifier(@id), attr, val)
+      end
 
       self
     end
@@ -67,8 +82,6 @@ module Melaknowma
     end
 
     def self.store(image_file)
-      image = Image.new_from_file(image_file)
-      image.save
     end
   end
 
@@ -136,8 +149,18 @@ module Melaknowma
       haml :'image/show'
     end
 
+    post "/api/upload" do
+      image = Image.new_from_file(params["image_mole"][:tempfile], params["image_mole"])
+      image.save
+
+      Crowd.push(image)
+      status(200)
+    end
+
     post "/upload" do
-      image = Image.store(params["image_mole"][:tempfile])
+      image = Image.new_from_file(params["image_mole"][:tempfile], params["image_mole"])
+      image.save
+
       Crowd.push(image)
       redirect "/image/#{image.id}"
     end

@@ -2,3 +2,9 @@
   %form{:action => "/upload", :enctype => "multipart/form-data", :method => "post"}
     %input{:type => "file", :name => "image_mole"}
     %input{:type => "submit", :value => "Send"}
+
+- Melaknowma::Image.list.each do |image_id|
+  %ul
+    %li
+      Image
+      %a{:href => "/image/#{image_id}"}= image_id
