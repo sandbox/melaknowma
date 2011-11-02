@@ -101,6 +101,8 @@ module Melaknowma
     end
 
     def diagnosis
+      return nil unless self.color && self.border && self.symmetry
+
       if self.color.to_i > 0 || self.border.to_i > 0 || self.symmetry.to_i > 0
         "get this checked by a doctor"
       else
