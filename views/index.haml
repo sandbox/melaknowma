@@ -1,7 +1,17 @@
-%div{:style => "padding-left:90px;"}
+#instructions
+  %p
+    upload images of your moles to check yourself. know your melanoma.
+    
+#example-image
+  %img{ :src => '/images/melanoma.png' }
+
+#upload
   %form{:action => "/upload", :enctype => "multipart/form-data", :method => "post"}
     %input{:type => "file", :name => "image_mole"}
     %input{:type => "submit", :value => "Send"}
+
+#disclaimer
+  this is for entertainment purposes only and does not take place of a medical doctor.
 
 - Melaknowma::Image.list.each do |image_id|
   %ul
