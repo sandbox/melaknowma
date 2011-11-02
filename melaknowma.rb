@@ -185,9 +185,9 @@ module Melaknowma
     def self.diagnose(image)
       # we should probably do something
       if image.color.to_i > 0 && image.border.to_i > 0 && image.symmetry.to_i > 0
-        image.diagnosis = "likely benign"
-      else
         image.diagnosis = "get this checked by a doctor"
+      else
+        image.diagnosis = "likely benign"
       end
     end
   end
